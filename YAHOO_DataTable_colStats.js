@@ -129,9 +129,9 @@ YAHOO.extend( lpltTable, YAHOO.widget.DataTable, {
           
           // Adds/removes listeners
           method: function (v) {
-            this._removeColumnStatEvents(v);
+            this._colStatsRemoveEvents(v);
             if (v && v.on && v.on === true) {
-              this._addColumnStatEvents(v);
+              this._colStatsAddEvents(v);
   
             } 
           }
@@ -193,11 +193,11 @@ YAHOO.extend( lpltTable, YAHOO.widget.DataTable, {
        ///////////////////////////////////////////////////////
        
        /**
-        * @method _addColumnStatEvents
+        * @method _colStatsAddEvents
         * @description Adds necessary event listeners for column stats
         * @protected
         */
-       _addColumnStatEvents : function (cfg) {
+       _colStatsAddEvents : function (cfg) {
 
          var pag = this.get("paginator");
 
@@ -253,11 +253,11 @@ YAHOO.extend( lpltTable, YAHOO.widget.DataTable, {
        
        
        /**
-        * @method _removeColumnStatEvents
+        * @method _colStatsRemoveEvents
         * @protected
         * @description  Removes event listeners for column summary stats
         */
-       _removeColumnStatEvents : function () {
+       _colStatsRemoveEvents : function () {
          var pag;
          
          this.removeListener("renderEvent", this._colStatsRenderValues);
