@@ -1,4 +1,102 @@
-This YUI2 DataTable extension provides a table footer that can display
-various summary statistics from the data in the table.
+This YUI2 DataTable http://developer.yahoo.com/yui/datatable/ extension provides 
+a table footer that can display various summary statistics from the data in the 
+table.  It is dynamic, so responds to inline data changes or changes to the
+display of the table.
 
-Provides 
+The extension to DataTable is in YAHOO_DataTable_colStats.js; the files
+YAHOO_DataSource_patch.js and YAHOO_util_Stats.js are both required by it.
+
+To add some column statistics, you'll need:
+ 1. To make sure your data source has "number" parsers for the relevant fields
+ 2. To add columnStats: true for the columns that you want summaries for
+    in the column definition you pass to the DataTable constructor
+ 3. To add a config value to your datatable constructor, minimally:
+
+      columnStats: {on: true, stats: ['sum']}
+
+    and maximally:
+
+      columnStats: {on: true, 
+        pagedTotals: false, 
+        stats: [ {label: 'Grand Total', fn: 'sum'},
+           {label: 'Average', fn: 'mean'},
+           'median',
+           {label: 'Weighted average': 
+            fn: function(oStat, oAllStats, oCol) {
+              // a custom function, which receives arguments:
+              //   - YAHOO.util.Stats instance for the current column,
+              //   - An object literal containing all the Stats instances for 
+              //       'summarisable' columns
+              //   - The column object that we're on
+              // and will be called in the scope of the DataTable
+              //
+              
+              // This gives use an array of records to work with, if we need it:
+              var rs = this.colStatsGetRecordSet();
+              
+              // The function should return a number
+              return 2;
+           }}
+        ]}
+        
+The pagedTotals value in the columnStats config object determines whether the 
+summary should be of the entire dataset, or just the visible records (if you've
+got a paginator).  pagedTotals === true means that the statistics will be 
+summary values for the current page i.e. records currently visible.
+
+A table foot will be added, with one row for each statistic.  Column formatters
+will be used if specified in the Column definitions.  The table cells (td 
+elements) in the footer will have class "yui-dt-colstat"
+
+The summary stats will update as appropriate when:
+ - columns are moved
+ - data is sorted
+ - columns are removed/added
+ - columns are shown/hidden
+ - rows are added or deleted
+ - data is edited
+ - paginator changes
+ 
+There are two public methods added to the datatable:
+ colStatsRefresh()        // update and redraw the table footer with the stats
+ colStatsGetRecordSet()   // return the recordset to use for calculations.
+ 
+The former is useful if you change settings on the datatable programatically but
+datatable doesn't fire useful events to respond to automatically.
+
+The latter is useful if you're passing in your own custom summary function (as
+in the 'maximal' example above).  If you are using pagedTotals then this will
+just return 'visibile' records, otherwise it'll return them all.
+
+
+
+
+-------------------
+        
+
+
+YAHOO_DataSource_patch.js adds a parseField(key, value) method which provides 
+relatively easy access to any parsers specified in the DataSource definition.
+This is useful because DataTable does not parse data added (for example by cell
+editors), so adding a value 5.2 in fact adds the string value "5.2" to the 
+recordset.
+
+YAHOO_util_Stats.js provides a wrapper for an array of numbers and calculates 
+various summary statistics from them (on demand).  Most of these values are cached.
+This is what does the maths for the DataTable extension.
+
+You could also use this standalone, like this:
+
+  var s = new YAHOO.util.Stats(1,5,3,7,4); // or new YAHOO.util.Stats([1,5,3,7,4]);
+  s.addDataValue(4);
+  s.sum();   // Sums values
+  s.mean();  // Think these are all pretty self-explanatory
+  s.median();
+  s.min();
+  s.max();
+  s.removeDataValue(4);  // Removes one of the 4 data points: true if successful
+  s.range();
+  s.stdev();
+  s.variance();
+  s.varianceUnbiased();
+  
