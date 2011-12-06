@@ -385,6 +385,12 @@ YAHOO.extend( lpltTable, YAHOO.widget.DataTable, {
                for (i = 0; i < cols.length; i=i+1) {
                  td = document.createElement('td');
                  Dom.addClass(td, "yui-dt-colstat");
+                 Dom.addClass(td, "yui-dt-col-" + cols[i].field);
+                 
+                 if(cols[i].className !== undefined) {
+                     Dom.addClass(td, cols[i].className);
+                 }
+                 
                  // Keep hidden columns hidden:
                  if (cols[i].hidden === true) {
                    Dom.addClass(td, "yui-dt-hidden");
