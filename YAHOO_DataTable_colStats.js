@@ -490,8 +490,10 @@ YAHOO.extend( lpltTable, YAHOO.widget.DataTable, {
              
              // Now display it: 
              
-             if (i === 0 || !Lang.isFunction(cols[i].formatter) || cols[i].columnStats !== true) {
+             if (i === 0 || (!Lang.isFunction(cols[i].formatter) && !Lang.isFunction(YAHOO.widget.DataTable.Formatter[cols[i].formatter])) || cols[i].columnStats !== true) {
                els[ij].innerHTML = cellValue;
+             } else if(Lang.isFunction(YAHOO.widget.DataTable.Formatter[cols[i].formatter])) { 
+	       YAHOO.widget.DataTable.Formatter[cols[i].formatter].call(this, els[ij], null, cols[i], cellValue);
              } else {
                cols[i].formatter.call(this, els[ij], null, cols[i], cellValue);
              }
